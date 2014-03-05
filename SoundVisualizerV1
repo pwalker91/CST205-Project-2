@@ -1,0 +1,34 @@
+def create():
+  save_path = "/Users/peterwalker/Documents/School/+ CSUMB Courses/CST 205/"
+  folder = "visualizer_images/"
+  ""
+  try:
+    os.makedirs(save_path+"visualizer_images")
+  except OSError:
+    printNow("Already Created")
+  
+  import random
+  for i in range(0,400):
+    picture = makeEmptyPicture(500, 500, black)
+    cala = makeColor((random.randint(0,255))%256, (random.randint(0,255))%256, (random.randint(0,255))%256)
+    size = int(math.fabs(math.cos(math.pi*i/200)) *100)
+    
+    addArcFilled(picture, i, i, size, size, 0+i, 0+i, cala)
+    addLine(picture, i, 400-i, i, i, cala)
+    if i<10:
+      writePictureTo(picture, save_path+folder+"frame000"+str(i)+".jpg")
+    elif i<100:
+      writePictureTo(picture, save_path+folder+"frame00"+str(i)+".jpg")
+    else:
+      writePictureTo(picture, save_path+folder+"frame0"+str(i)+".jpg")  
+  
+  mov = makeMovieFromInitialFile(save_path+folder+"frame0001.jpg")
+  writeAVI(mov, "/Users/peterwalker/Desktop/test.avi", 100)
+  ""
+  import shutil
+  try:
+    shutil.rmtree(save_path+folder)
+  except OSError:
+    printNow("Already Deleted")
+  ""
+  

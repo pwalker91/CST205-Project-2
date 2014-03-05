@@ -1,0 +1,122 @@
+def run():
+   import random
+   import string   ## USED TO GET FILE NAME
+   import shutil   ## USED TO COPY AND DELETE IMAGES FOLDER
+   
+   save_path = "/Users/peterwalker/Documents/School/+ CSUMB Courses/CST 205/"
+   desktop = "/Users/peterwalker/Desktop/"
+   folder = "visualizer_images/"
+   
+      #This creates the folder at the specified location above
+      # If the folder is already created, it will first delete it, then create it again
+   try:
+      os.makedirs(save_path+folder)
+   except OSError:
+      shutil.rmtree(save_path+folder)
+      os.makedirs(save_path+folder)
+   
+   printNow("Please pick a sound")
+   file = pickAFile()
+   file_name = file[string.rfind(file,"/")+1:]
+   sound = makeSound(file)
+   
+   rate = getSamplingRate(sound)
+   allSamples = getSamples(sound)
+   
+      #Finding the "loudest" sample in the given audio
+   maxSampValue = 0
+   for i in range(0, getNumSamples(sound)):
+      if maxSampValue < allSamples[i].value:
+         maxSampValue = allSamples[i].value
+   
+      #width and height of picture
+   width = 1000
+   height = 500
+   
+      #This will be multiplied into the sample value to give
+      # the vertical amount that will be added to our line
+   ratio = float(height)/maxSampValue
+      #There are going to be X number of frames created, and the number of frames
+      # that will cover one second of video is equal to the rate of the song "rate"
+      # divided by how many samples there are per picture "width"
+   framesPerSec = int(rate/width)
+   numOfPictures = getNumSamples(sound)/width
+   
+   printNow("Starting Visualization")
+   
+      #This loop will be looping X number of times, which is how many 
+      # "units" of sample sections there are (sections of "width" number of samples)
+   for step in range(0, numOfPictures-2):
+      picture = makeEmptyPicture(width, height, black)
+      cala = white
+      if step%(numOfPictures/100) == 0:
+         printNow("Working.... "+str( int(float(step)/numOfPictures*100) )+"%")
+    
+         #Adding the red line in the horizontal center of the pictures
+      addLine(picture, 0, (height/2), width, (height/2), red)
+      soundPlayingHere = width/framesPerSec*(framesPerSec-(framesPerSec/3))
+      addLine(picture, soundPlayingHere, 0, soundPlayingHere, height, red)
+         #This loop will go through each "section" of sample, graphing each one in the picture
+         #This is the padding of array values added to the 
+      padding = step*width
+         #Delay is how many "sections" will be shown per picture
+      delay = framesPerSec
+      smallWidth = width/delay
+      startDelay = (delay/3)-delay
+      endDelay = (delay/3)
+      for previous in range(startDelay, endDelay):
+         if padding+(previous*width)>=0 and getNumSamples(sound)>padding+((previous+endDelay-1)*width):
+            for Sstep in range(0, smallWidth):
+               avgVal = 0
+               nextAvgVal = 0
+               for XSstep in range(0, delay):
+                  avgVal += allSamples[ padding +(previous*width) +(Sstep*smallWidth) +XSstep ].value
+                  nextAvgVal += allSamples[ padding +(previous*width) +((Sstep+1)*smallWidth) +XSstep ].value
+            thisSampValue = int( (avgVal/smallWidth)*(ratio/3.75) )
+            nextSampValue = int( (nextAvgVal/smallWidth)*(ratio/3.75) )
+            xValue = (smallWidth*(previous-startDelay))+Sstep
+            addLine(picture, xValue, (height/2)-thisSampValue, xValue+1, (height/2)-nextSampValue, cala)
+         else:
+            xValue = smallWidth*(previous-startDelay)
+            nextXValue = smallWidth*(previous-startDelay+1)
+            addLine(picture, xValue, height/2, nextXValue, height/2, cala)
+    
+            #This section is for naming the picture, and padding the appropiate number of 0's
+         if step<10:
+            writePictureTo(picture, save_path+folder+"frame0000"+str(step)+".jpg")
+         elif step<100:
+            writePictureTo(picture, save_path+folder+"frame000"+str(step)+".jpg")
+         elif step<1000:
+            writePictureTo(picture, save_path+folder+"frame00"+str(step)+".jpg")  
+         elif step<10000:
+            writePictureTo(picture, save_path+folder+"frame0"+str(step)+".jpg")
+         else:
+            writePictureTo(picture, save_path+folder+"frame"+str(step)+".jpg")
+      ## END FOR
+  
+      #This is where the movie is created
+   printNow("Creating Movie")
+   mov = makeMovieFromInitialFile(save_path+folder+"frame0001.jpg")
+   writeAVI(mov, "/Users/peterwalker/Desktop/"+file_name[:-4]+".avi", framesPerSec)
+   
+   printNow("Would you like to copy the folder of images to the desktop?")
+   response = raw_input("(y/n) ")
+   while response != "y" and response != "n":
+      printNow("You did not input 'y' or 'n'")
+      response = raw_input("(y/n) ")
+   
+      ### MOVE IMAGES FOLDER WITH FILENAME APPENDED
+   if response == 'y':
+      try:
+         shutil.copytree(save_path+folder, desktop+folder[:-1]+"_"+file_name[:10]+"/")
+      except OSError:
+         moved = false
+   
+      ### DELETEING IMAGES FOLDER
+   try:
+      shutil.rmtree(save_path+folder)
+   except OSError:
+      deleted = false
+   
+
+

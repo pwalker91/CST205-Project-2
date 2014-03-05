@@ -1,0 +1,21 @@
+pic = makeEmptyPicture(256*16, 256*256/16)
+daRed = 0
+daBlue = 0
+daGreen = 0
+for h in range(256*256/16):
+  for i in range(256*16):
+    daPixel = getPixel(pic, i, h)
+    daPixel.setRed(daRed)
+    daPixel.setBlue(daBlue)
+    daPixel.setGreen(daGreen)
+    #printNow(str(daPixel)+" "+str(h)+" "+str(i))
+    daRed += 1
+    if daRed==256:
+      daRed = 0
+      daBlue += 1
+      if daBlue==256:
+        daBlue = 0
+        daGreen += 1
+writePictureTo(pic, "/Users/peterwalker/Desktop/test.jpg")
+
+#80
