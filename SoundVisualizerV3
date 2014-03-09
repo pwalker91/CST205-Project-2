@@ -18,85 +18,117 @@ def run():
    printNow("Please pick a sound")
    file = pickAFile()
    file_name = file[string.rfind(file,"/")+1:]
-   sound = makeSound(file)
+   SOUND = makeSound(file)
+   rate = getSamplingRate(SOUND)
+   SAMPLES = getSamples(SOUND)
+   numSamples = getNumSamples(SOUND)
    
-   rate = getSamplingRate(sound)
-   allSamples = getSamples(sound)
+      #Declaring necessary numbers for loops and index counters
+   framesPerSec = 25
+   sampleSectionsPerFrame = 40
+   lastSecondSectionCount = int( sampleSectionsPerFrame*(float(5)/8) )
+   nextHalfSecondSectionCount = int( sampleSectionsPerFrame*(float(3)/8) )
+      ## This is also how many pixels there will be per section
+         # 21 Will divide nicely into the rate/framesPerSec if rate is 44100 or 22050
+   pixelsPerSection = 21
+   samplesPerSection = int( (rate/framesPerSec)/pixelsPerSection )
+   sampleIndex = 0
+   frameIndex = 0
+   lastPercentage = 0
+   
+      #width and height of picture
+   width = pixelsPerSection*sampleSectionsPerFrame
+   height = 600
    
       #Finding the "loudest" sample in the given audio
    maxSampValue = 0
-   for i in range(0, getNumSamples(sound)):
-      if maxSampValue < allSamples[i].value:
-         maxSampValue = allSamples[i].value
-   
-      #width and height of picture
-   width = 1000
-   height = 500
-   
+   for i in range(0, numSamples):
+      if maxSampValue < SAMPLES[i].value:
+         maxSampValue = SAMPLES[i].value
+         
       #This will be multiplied into the sample value to give
       # the vertical amount that will be added to our line
-   ratio = float(height)/maxSampValue
-      #There are going to be X number of frames created, and the number of frames
-      # that will cover one second of video is equal to the rate of the song "rate"
-      # divided by how many samples there are per picture "width"
-   framesPerSec = int(rate/width)
-   numOfPictures = getNumSamples(sound)/width
+   ratio = float(height/2)/maxSampValue
    
    printNow("Starting Visualization")
    
-      #This loop will be looping X number of times, which is how many 
-      # "units" of sample sections there are (sections of "width" number of samples)
-   for step in range(0, numOfPictures-2):
+      #This is an array that will hold all of the y-coordinates
+      # for the section of the picture
+   averagesArray = [ [0]*pixelsPerSection ]*(lastSecondSectionCount+1)
+   for a in range(lastSecondSectionCount+1, sampleSectionsPerFrame):
+      toBeAppended = [0]*pixelsPerSection
+      for b in range(0, pixelsPerSection):
+         sampleAvg = 0
+         for c in range(0, samplesPerSection):
+            sampleAvg += SAMPLES[sampleIndex+c].value*ratio
+         sampleIndex += samplesPerSection
+         toBeAppended[b] = int( (float(sampleAvg)/samplesPerSection) )
+      averagesArray.append(toBeAppended)
+   
+      #This while loop will iterate through the sound, creating the appropiate image for the
+      # current section of time
+   while sampleIndex<numSamples+(samplesPerSection*nextHalfSecondSectionCount):
       picture = makeEmptyPicture(width, height, black)
-      cala = white
-      if step%(numOfPictures/100) == 0:
-         printNow("Working.... "+str( int(float(step)/numOfPictures*100) )+"%")
-    
+      soundColor = white
+      lineColor = red
+      currentPercentage = int((float(sampleIndex)/numSamples) *100)
+      if currentPercentage != lastPercentage:
+         printNow("Working.... "+str(currentPercentage)+"%")
+         lastPercentage = currentPercentage
+   
          #Adding the red line in the horizontal center of the pictures
-      addLine(picture, 0, (height/2), width, (height/2), red)
-      soundPlayingHere = width/framesPerSec*(framesPerSec-(framesPerSec/3))
-      addLine(picture, soundPlayingHere, 0, soundPlayingHere, height, red)
-         #This loop will go through each "section" of sample, graphing each one in the picture
-         #This is the padding of array values added to the 
-      padding = step*width
-         #Delay is how many "sections" will be shown per picture
-      delay = framesPerSec
-      smallWidth = width/delay
-      startDelay = (delay/3)-delay
-      endDelay = (delay/3)
-      for previous in range(startDelay, endDelay):
-         if padding+(previous*width)>=0 and getNumSamples(sound)>padding+((previous+endDelay-1)*width):
-            for Sstep in range(0, smallWidth):
-               avgVal = 0
-               nextAvgVal = 0
-               for XSstep in range(0, delay):
-                  avgVal += allSamples[ padding +(previous*width) +(Sstep*smallWidth) +XSstep ].value
-                  nextAvgVal += allSamples[ padding +(previous*width) +((Sstep+1)*smallWidth) +XSstep ].value
-            thisSampValue = int( (avgVal/smallWidth)*(ratio/3.75) )
-            nextSampValue = int( (nextAvgVal/smallWidth)*(ratio/3.75) )
-            xValue = (smallWidth*(previous-startDelay))+Sstep
-            addLine(picture, xValue, (height/2)-thisSampValue, xValue+1, (height/2)-nextSampValue, cala)
-         else:
-            xValue = smallWidth*(previous-startDelay)
-            nextXValue = smallWidth*(previous-startDelay+1)
-            addLine(picture, xValue, height/2, nextXValue, height/2, cala)
-    
-            #This section is for naming the picture, and padding the appropiate number of 0's
-         if step<10:
-            writePictureTo(picture, save_path+folder+"frame0000"+str(step)+".jpg")
-         elif step<100:
-            writePictureTo(picture, save_path+folder+"frame000"+str(step)+".jpg")
-         elif step<1000:
-            writePictureTo(picture, save_path+folder+"frame00"+str(step)+".jpg")  
-         elif step<10000:
-            writePictureTo(picture, save_path+folder+"frame0"+str(step)+".jpg")
-         else:
-            writePictureTo(picture, save_path+folder+"frame"+str(step)+".jpg")
-      ## END FOR
-  
+      soundSyncLine = int((float(5)/8)*width)
+      picture.addLine(lineColor, 0, (height/2), width, (height/2))
+      picture.addLine(lineColor, soundSyncLine, 0, soundSyncLine, height)
+      
+         #Determining the array of averages for the 21 pixels in the new section.
+         # first removes the first array (moved past it), then gets array, then appends
+      averagesArray.pop(0)
+      newAverages = [0]*pixelsPerSection
+      for q in range(0, pixelsPerSection):
+         sampleAvg = 0
+         for r in range(0, samplesPerSection):
+            try:
+               sampleAvg += SAMPLES[sampleIndex+r].value*ratio
+            except IndexError:
+               sampleAvg += 0
+         sampleIndex += samplesPerSection
+         newAverages[q] = int( (float(sampleAvg)/samplesPerSection) )
+      averagesArray.append(newAverages)
+      
+      #printNow(averagesArray)
+      
+      for i in range(0, sampleSectionsPerFrame):
+         for j in range(0, pixelsPerSection):
+            thisX = (i*pixelsPerSection)+j
+            nextX = (i*pixelsPerSection)+j+1
+            try:
+               picture.addLine(soundColor, thisX, (height/2)-averagesArray[i][j], nextX, (height/2)-averagesArray[i][j+1])
+            except IndexError:
+               try:
+                  picture.addLine(soundColor, thisX, (height/2)-averagesArray[i][j], nextX, (height/2)-averagesArray[i+1][0])
+               except IndexError:
+                  Im_Doing_Something_Here = false
+      
+         #Iterate frame index before saving picture
+      frameIndex += 1
+         #This section is for naming the picture, and padding the appropiate number of 0's
+      if frameIndex<10:
+         writePictureTo(picture, save_path+folder+"frame0000"+str(frameIndex)+".jpg")
+      elif frameIndex<100:
+         writePictureTo(picture, save_path+folder+"frame000"+str(frameIndex)+".jpg")
+      elif frameIndex<1000:
+         writePictureTo(picture, save_path+folder+"frame00"+str(frameIndex)+".jpg")  
+      elif frameIndex<10000:
+         writePictureTo(picture, save_path+folder+"frame0"+str(frameIndex)+".jpg")
+      else:
+         writePictureTo(picture, save_path+folder+"frame"+str(frameIndex)+".jpg")
+   ## END WHILE
+   
+   
       #This is where the movie is created
    printNow("Creating Movie")
-   mov = makeMovieFromInitialFile(save_path+folder+"frame0001.jpg")
+   mov = makeMovieFromInitialFile(save_path+folder+"frame00001.jpg")
    writeAVI(mov, "/Users/peterwalker/Desktop/"+file_name[:-4]+".avi", framesPerSec)
    
    printNow("Would you like to copy the folder of images to the desktop?")
@@ -117,6 +149,9 @@ def run():
       shutil.rmtree(save_path+folder)
    except OSError:
       deleted = false
-   
+"""
+# TESTING AREA BELOW
+"""
+
 
 

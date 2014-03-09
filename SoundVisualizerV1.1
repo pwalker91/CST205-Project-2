@@ -1,0 +1,83 @@
+def create():
+  import random
+  
+  save_path = "/Users/peterwalker/Documents/School/+ CSUMB Courses/CST 205/"
+  folder = "visualizer_images/"
+    #This creates the folder at the specified location above
+  try:
+    os.makedirs(save_path+folder)
+  except OSError:
+    printNow("Already Created")
+  
+  printNow("Please pick a sound")
+  file = pickAFile()
+  sound = makeSound(file)
+  
+  rate = getSamplingRate(sound)
+  allSamples = getSamples(sound)
+  
+    #Finding the "loudest" sample in the given audio
+  maxSampValue = 0
+  for i in range(0, getNumSamples(sound)):
+    if maxSampValue < allSamples[i].value:
+      maxSampValue = allSamples[i].value
+  
+    #width and height of picture
+  width = 1000
+  height = 500
+  
+    #This will be multiplied into the sample value to give
+    # the vertical amount that will be added to our line
+  ratio = float(height)/maxSampValue/2
+    #There are going to be X number of frames created, and the number of frames
+    # that will cover one second of video is equal to the rate of the song "rate"
+    # divided by how many samples there are per picture "width"
+  framesPerSec = int(rate/width)
+  numOfPictures = getNumSamples(sound)/width
+  
+  printNow("Starting Visualization")
+  
+    #This loop will be looping X number of times, which is how many 
+    # "units" of sample sections there are (sections of "width" number of samples)
+  for step in range(0, numOfPictures-2):
+    picture = makeEmptyPicture(width, height, black)
+    color = white
+    if step%(numOfPictures/100) == 0:
+      printNow("Working.... "+str( int(float(step)/numOfPictures*100) )+"%")
+    
+      #Adding the red line in the horizontal center of the pictures
+    addLine(picture, 0, (height/2), width, (height/2), red)
+      #This loop will go through each "section" of sample, graphing each one in the picture
+      #This is the padding of array values added to the 
+    padding = step*width
+    for Sstep in range(0, width-1):
+       thisSampValue = int( allSamples[padding+Sstep].value*ratio )
+       nextSampValue = int( allSamples[padding+Sstep+1].value*ratio )
+       addLine(picture, Sstep, (height/2)-thisSampValue, Sstep+1, (height/2)-nextSampValue, color)
+    
+      #This section is for naming the picture, and padding the appropiate number of 0's
+    if step<10:
+      writePictureTo(picture, save_path+folder+"frame0000"+str(step)+".jpg")
+    elif step<100:
+      writePictureTo(picture, save_path+folder+"frame000"+str(step)+".jpg")
+    elif step<1000:
+      writePictureTo(picture, save_path+folder+"frame00"+str(step)+".jpg")  
+    elif step<10000:
+      writePictureTo(picture, save_path+folder+"frame0"+str(step)+".jpg")
+    else:
+      writePictureTo(picture, save_path+folder+"frame"+str(step)+".jpg")
+  
+    #This is where the movie is created
+  printNow("Creating Movie")
+  mov = makeMovieFromInitialFile(save_path+folder+"frame00001.jpg")
+  writeAVI(mov, "/Users/peterwalker/Desktop/test.avi", framesPerSec)
+  """
+    #### MOVE FOLDER TO ANOTHER NAME, DON'T DELETE
+    #This is used to remove the folder after the program has been run
+  import shutil
+  try:
+    shutil.rmtree(save_path+folder)
+  except OSError:
+    deleted = false#printNow("Already Deleted")
+  """
+
