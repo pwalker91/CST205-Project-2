@@ -21,6 +21,13 @@ def run():
    SOUND = makeSound(file)
    
    
+   width = 600
+   height = 800
+   picture = makeEmptyPicture(width, height, black)
+   
+   
+   
+   
    
    
    

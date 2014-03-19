@@ -1,0 +1,48 @@
+# This is the line object.
+# It has a start point (x,y), an end point (x,y), and a color.
+# By default, these are (0,0), (1,1), and white
+class Line:
+   # This is the initializer, which is run every time a Line object is created
+   def __init__(self, startX=0, startY=0, endX=0, endY=0, myColor=white):
+      self.startX = startX
+      self.startY = startY
+      self.endX = endX
+      self.endY = endY
+      self.myColor = white
+   
+   #These are the getters and setters
+   def setStartX(x):
+      self.startX = x
+   def setStartY(y):
+      self.startY = y
+   def getStartX():
+      return self.startX
+   def getStartY():
+      return self.startY
+   
+   def setEndX(x):
+      self.endX = x
+   def setEndY(y):
+      self.endY = y
+   def getEndX():
+      return self.endX
+   def getEndY():
+      return self.endY
+   
+   def setMyColor(color):
+      #if
+      self.myColor = color
+   def getMyColor():
+      return self.myColor
+      
+   def returnClass(self):
+     returning = str(self.__class__)+" "+str(self.__name__)+" "+str(self.__class__.__name__)
+     return returning
+
+
+###################################
+color = makeColor(2,3,4)
+line = Line()
+printNow(line.returnClass())
+printNow(line.__class__.__name__)
+printNow(color.__class__.__name__)
