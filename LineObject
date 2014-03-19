@@ -29,20 +29,29 @@ class Line:
    def getEndY():
       return self.endY
    
-   def setMyColor(color):
-      #if
-      self.myColor = color
+   def setMyColor(self, color):
+      if color.__class__.__name__ == "Color":
+         self.myColor = color
+      else:
+         raise TypeError("You did not pass in a Color object")
    def getMyColor():
       return self.myColor
       
    def returnClass(self):
-     returning = str(self.__class__)+" "+str(self.__name__)+" "+str(self.__class__.__name__)
+     returning = str(self.__class__)+"  "+str(self.__class__.__name__)
      return returning
 
 
 ###################################
+"""
 color = makeColor(2,3,4)
 line = Line()
 printNow(line.returnClass())
 printNow(line.__class__.__name__)
-printNow(color.__class__.__name__)
+printNow(color.__class__)
+line.setMyColor(5)
+"""
+"""
+line = Line()
+line.setMyColor(makeColor(2,3,4))
+"""
