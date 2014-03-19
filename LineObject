@@ -1,3 +1,4 @@
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # This is the line object.
 # It has a start point (x,y), an end point (x,y), and a color.
 # By default, these are (0,0), (1,1), and white
@@ -30,28 +31,29 @@ class Line:
       return self.endY
    
    def setMyColor(self, color):
-      if color.__class__.__name__ == "Color":
+      if str(color.__class__) == "media.Color":
          self.myColor = color
+         return "Line Color was changed to ~"+str(color)+"~"
       else:
          raise TypeError("You did not pass in a Color object")
    def getMyColor():
       return self.myColor
-      
-   def returnClass(self):
-     returning = str(self.__class__)+"  "+str(self.__class__.__name__)
-     return returning
-
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 ###################################
-"""
+""
 color = makeColor(2,3,4)
 line = Line()
-printNow(line.returnClass())
 printNow(line.__class__.__name__)
+printNow(line.__class__)
 printNow(color.__class__)
-line.setMyColor(5)
-"""
-"""
+try:
+   line.setMyColor(5)
+except TypeError:
+   printNow("didn't use a color")
+""
+""
 line = Line()
-line.setMyColor(makeColor(2,3,4))
-"""
+printNow( line.setMyColor(makeColor(120,100,25)) )
+printNow( line.setMyColor(white) )
+""
