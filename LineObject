@@ -45,6 +45,11 @@ class Line:
          return true
       else:
          raise TypeError("You did not pass in a Picture object.")
+   def print(self):
+      return ( "Start: "+str(self.startX)+", "
+                        +str(self.startY)+
+              " - End: "+str(self.endX)+", "
+                        +str(self.endY) )
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -81,7 +86,7 @@ class Limb:
          raise Exception("You cannot call this function for this object. This limb has no Branches")
    def removeBranch(self, index):
       if self.hasBranches:
-         if (index >= self.size) or (index < 0):
+         if (index >= len(self.branches)) or (index < 0):
             raise IndexError("You did not pass a correct index. It must be between 0 and "+str(self.size))
          else:
             return self.branches.pop(index)
@@ -89,7 +94,7 @@ class Limb:
          raise Exception("You cannot call this function for this object. This limb has no Branches")
    def getBranch(self, index):
       if self.hasBranches:
-         if (index >= self.size) or (index < 0):
+         if (index >= len(self.branches)) or (index < 0):
             raise IndexError("You did not pass a correct index. It must be between 0 and "+str(self.size))
          else:
             return self.branches[index]
@@ -239,6 +244,7 @@ repaint(picture2)
 """
 
 ""
+#drawing a bunch of branches
 import time, random
 picture = makeEmptyPicture(500,500, black)
 branch = Branch()
@@ -246,9 +252,22 @@ for i in range(0,4):
    color = makeColor(random.randint(20, 256), random.randint(20, 256), random.randint(20, 256))
    line = Line(0+(i*100),0+(i*100), 99+(i*100),99+(i*100), color)
    limb = Limb(line, true)
+   for m in range(0,10):
+      limb.addBranch(Branch())
+      for j in range(0,4):
+         color = makeColor(random.randint(20, 256), random.randint(20, 256), random.randint(20, 256))
+         X = line.getStartX()
+         Y = line.getStartY()
+         if (m%2)==0:
+            line2 = Line(X+(m*10)+(j*15),Y+(m*10), X+(m*10)+((j+1)*15),Y+(m*10), color)
+         else:
+            line2 = Line(X+(m*10),Y+(m*10)+(j*15), X+(m*10),Y+(m*10)+((j+1)*15), color)
+         limb2 = Limb(line2, false)
+         limb.getBranch(m).addLimb(limb2)
    branch.addLimb(limb)
+   addArcFilled(picture, 98+(i*100),98+(i*100), 5,5, 0,360, white)
 branch.drawAllLimbs(picture)
-time.sleep(2)
+
 
 """
 for i in range(0,4):
