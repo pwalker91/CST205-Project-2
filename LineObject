@@ -9,25 +9,25 @@ class Line:
       self.startY = startY
       self.endX = endX
       self.endY = endY
-      self.myColor = white
+      self.myColor = myColor
    
    #These are the getters and setters
-   def setStartX(x):
+   def setStartX(self, x):
       self.startX = x
-   def setStartY(y):
+   def setStartY(self, y):
       self.startY = y
-   def getStartX():
+   def getStartX(self):
       return self.startX
-   def getStartY():
+   def getStartY(self):
       return self.startY
    
-   def setEndX(x):
+   def setEndX(self, x):
       self.endX = x
-   def setEndY(y):
+   def setEndY(self, y):
       self.endY = y
-   def getEndX():
+   def getEndX(self):
       return self.endX
-   def getEndY():
+   def getEndY(self):
       return self.endY
    
    def setMyColor(self, color):
@@ -35,13 +35,151 @@ class Line:
          self.myColor = color
          return "Line Color was changed to ~"+str(color)+"~"
       else:
-         raise TypeError("You did not pass in a Color object")
-   def getMyColor():
+         raise TypeError("You did not pass in a Color object.")
+   def getMyColor(self):
       return self.myColor
+      
+   def drawLine(self, picture):
+      if str(picture.__class__) == "Picture":
+         picture.addLine(self.myColor, self.startX, self.startY, self.endX, self.endY)
+         return true
+      else:
+         raise TypeError("You did not pass in a Picture object.")
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# This is the Limb object
+# It has a line attribute and a branches attribute
+# The line is a Line object, and the branches attribute is an array of branches
+# The hasBranches attribute is for determining whether the object has branches or not
+class Limb:
+   def __init__(self, line, hasBranches=false):
+      if str(line.__class__) == "Line":
+         self.line = line
+      else:
+         raise TypeError("You did not pass in a Line object")
+      self.hasBranches = hasBranches
+      if self.hasBranches:
+         self.branches = []
+         
+   def getLine(self):
+      return self.line
+   def setLine(self, line):
+      if str(line.__class__) == "Line":
+         self.line = line
+      else:
+         raise TypeError("You did not pass in a Line object.")
+   
+   def addBranch(self, branch):
+      if self.hasBranches:
+         if str(branch.__class__) == "Branch":
+            self.branches.append(branch)
+            return len(self.branches)-1
+         else:
+            raise TypeError("You did not pass in a Line object.")
+      else:
+         raise Exception("You cannot call this function for this object. This limb has no Branches")
+   def removeBranch(self, index):
+      if self.hasBranches:
+         if (index >= self.size) or (index < 0):
+            raise IndexError("You did not pass a correct index. It must be between 0 and "+str(self.size))
+         else:
+            return self.branches.pop(index)
+      else:
+         raise Exception("You cannot call this function for this object. This limb has no Branches")
+   def getBranch(self, index):
+      if self.hasBranches:
+         if (index >= self.size) or (index < 0):
+            raise IndexError("You did not pass a correct index. It must be between 0 and "+str(self.size))
+         else:
+            return self.branches[index]
+      else:
+         raise Exception("You cannot call this function for this object. This limb has no Branches")
+   def getAllBranches(self):
+      if self.hasBranches:
+         return self.branches
+      else:
+         raise Exception("You cannot call this function for this object. This limb has no Branches")
+   
+   def drawLimb(self, picture):
+      self.line.drawLine(picture)
+      repaint(picture)
+      if self.hasBranches:
+         for branch in self.branches:
+            branch.drawAllLimbs(picture)
+      
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# This is the branch object.
+# It has a size (number of limbs) and an array of Limbs
+# Initially, the size is 0 and the array is empty
+class Branch:
+   def __init__(self):
+      self.size = 0
+      self.limbs = []
+   
+   def addLimb(self, limb):
+      if str(limb.__class__) == "Limb":
+         self.limbs.append(limb)
+         self.size+=1
+         return self.size
+      else:
+         raise TypeError("You did not pass in a Limb object.")
+   def removeLimb(self, index):
+      if (index >= self.size) or (index < 0):
+         raise IndexError("You did not pass a correct index. It must be between 0 and "+str(self.size))
+      else:
+         self.size-=1
+         return self.limbs.pop(index)
+   def getLimb(self, index):
+      if (index >= self.size) or (index < 0):
+         raise IndexError("You did not pass a correct index. It must be between 0 and "+str(self.size))
+      else:
+         return self.limbs[index]
+   def getAllLimbs(self):
+      return self.limbs
+   
+   def drawAllLimbs(self, picture):
+      if (str(picture.__class__) == "Picture"):
+         for limb in self.limbs:
+            limb.drawLimb(picture)
+      else:
+         raise TypeError("You did not pass in a Picture object.")
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+
+
+
+
+
+
+## BELOW IS PROGRAM MAIN AND FUNCTIONS
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ###################################
-""
+"""
+#making sure class names match
 color = makeColor(2,3,4)
 line = Line()
 printNow(line.__class__.__name__)
@@ -51,9 +189,90 @@ try:
    line.setMyColor(5)
 except TypeError:
    printNow("didn't use a color")
-""
-""
+printNow("")
+printNow(type(line.__class__))# == "Line")
+"""
+
+
+"""
+#testing changing color
 line = Line()
 printNow( line.setMyColor(makeColor(120,100,25)) )
 printNow( line.setMyColor(white) )
+"""
+
+
+"""
+#testing drawing line
+picture = makeEmptyPicture(100,100, black)
+line.drawLine(picture)
+line.setStartX(10)
+line.setStartY(10)
+line.drawLine(picture)
+show(picture)
+"""
+
+
+"""
+#testing branch object
+import time
+myBrand = Branch()
+myBrand.addLimb(Line(0,1,2,3))
+myBrand.addLimb(Line(5,5,20,20))
+printNow(vars(myBrand))
+limbs = myBrand.getAllLimbs()
+for i in range(0, len(limbs)):
+   printNow(vars(limbs[i]))
+
+picture2 = makeEmptyPicture(100,100, black)
+myBrand.addLimb(Line(50,50,20,20,red))
+printNow(vars(myBrand))
+myBrand.drawAllLimbs(picture2, true)
+
+time.sleep(3)
+picture2 = makeEmptyPicture(100,100, black)
+myBrand.removeLimb(0)
+myBrand.removeLimb(0)
+printNow(vars(myBrand))
+myBrand.drawAllLimbs(picture2)
+repaint(picture2)
+"""
+
 ""
+import time, random
+picture = makeEmptyPicture(500,500, black)
+branch = Branch()
+for i in range(0,4):
+   limb = Limb(hasBranches = true)
+   line = Line(0+(i*100),0+(i*100), 99+(i*100),99+(i*100),
+      makeColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) )
+   limb.setLine(line)
+   branch.addLimb(limb)
+branch.drawAllLimbs(picture)
+time.sleep(2)
+
+"""
+for i in range(0,4):
+   branch2a = Branch()
+   branch2b = Branch()
+   limb1 = branch.getLimb(0)
+   limb2 = branch.getLimb(2)
+   
+   
+branch2 = Branch()
+branch2.addLimb(Limb(Line(10,10,10,30,red), false))
+branch2.addLimb(Limb(Line(10,30,10,50,green), true))
+branch2.addLimb(Limb(Line(10,50,10,70,yellow), false))
+branch2.addLimb(Limb(Line(10,70,10,90,cyan), false))
+branch.getLimb(0).addBranch(branch2)
+branch.drawAllLimbs(picture)
+time.sleep(2)
+
+for i in range(0,4):
+   branch3 = Branch()
+   branch3.addLimb(Limb(Line(10,30+(i*5), 15,30+(i*5)+5, white)))
+   branch3.addLimb(Limb(Line(10,30+(i*5)+2, 5,30+(i*5)+5+2, white)))
+   branch2.getLimb(1).addBranch(branch3)
+branch.drawAllLimbs(picture)
+#time.sleep(2)
+"""
