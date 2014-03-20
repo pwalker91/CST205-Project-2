@@ -243,10 +243,9 @@ import time, random
 picture = makeEmptyPicture(500,500, black)
 branch = Branch()
 for i in range(0,4):
-   limb = Limb(hasBranches = true)
-   line = Line(0+(i*100),0+(i*100), 99+(i*100),99+(i*100),
-      makeColor(random.randint(0, 255), random.randint(0, 255), random.randint(0, 255)) )
-   limb.setLine(line)
+   color = makeColor(random.randint(20, 256), random.randint(20, 256), random.randint(20, 256))
+   line = Line(0+(i*100),0+(i*100), 99+(i*100),99+(i*100), color)
+   limb = Limb(line, true)
    branch.addLimb(limb)
 branch.drawAllLimbs(picture)
 time.sleep(2)
