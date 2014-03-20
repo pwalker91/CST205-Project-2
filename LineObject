@@ -10,6 +10,15 @@ class Line:
       self.endX = endX
       self.endY = endY
       self.myColor = myColor
+   #This is the method called when you use str(self). Prints out the variables
+   def __str__(self):
+      return ( "Start:"+str(self.startX)+","
+                        +str(self.startY)+
+              "-End:"+str(self.endX)+","
+                        +str(self.endY)+
+              "-Color:"+str(self.myColor.getRed())+","
+                         +str(self.myColor.getGreen())+","
+                         +str(self.myColor.getBlue()) )
    
    #These are the getters and setters
    def setStartX(self, x):
@@ -45,11 +54,6 @@ class Line:
          return true
       else:
          raise TypeError("You did not pass in a Picture object.")
-   def print(self):
-      return ( "Start: "+str(self.startX)+", "
-                        +str(self.startY)+
-              " - End: "+str(self.endX)+", "
-                        +str(self.endY) )
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -66,6 +70,12 @@ class Limb:
       self.hasBranches = hasBranches
       if self.hasBranches:
          self.branches = []
+   def __str__(self):
+      returnable = "|Limb:"+str(self.line)+"|  "
+      if self.hasBranches:
+         for branch in self.branches:
+            returnable += "\n"+str(branch)
+      return returnable
          
    def getLine(self):
       return self.line
@@ -120,9 +130,22 @@ class Limb:
 # It has a size (number of limbs) and an array of Limbs
 # Initially, the size is 0 and the array is empty
 class Branch:
-   def __init__(self):
+   def __init__(self, level):
       self.size = 0
       self.limbs = []
+      self.level = level
+   def __str__(self):
+      returnable = ""
+      for i in range(0,self.level):
+         returnable += "  ~~  "
+      
+      if len(self.limbs)==0:
+         return "Branch has no limbs"
+      for limb in self.limbs:
+         returnable += str(limb)
+         if limb.hasBranches:
+            returnable += "\n"
+      return returnable
    
    def addLimb(self, limb):
       if str(limb.__class__) == "Limb":
@@ -247,13 +270,15 @@ repaint(picture2)
 #drawing a bunch of branches
 import time, random
 picture = makeEmptyPicture(500,500, black)
-branch = Branch()
+branch = Branch(0)
+printNow(str(branch))
+
 for i in range(0,4):
    color = makeColor(random.randint(20, 256), random.randint(20, 256), random.randint(20, 256))
    line = Line(0+(i*100),0+(i*100), 99+(i*100),99+(i*100), color)
    limb = Limb(line, true)
    for m in range(0,10):
-      limb.addBranch(Branch())
+      limb.addBranch(Branch(branch.level+1))
       for j in range(0,4):
          color = makeColor(random.randint(20, 256), random.randint(20, 256), random.randint(20, 256))
          X = line.getStartX()
@@ -267,7 +292,7 @@ for i in range(0,4):
    branch.addLimb(limb)
    addArcFilled(picture, 98+(i*100),98+(i*100), 5,5, 0,360, white)
 branch.drawAllLimbs(picture)
-
+printNow(str(branch))
 
 """
 for i in range(0,4):
