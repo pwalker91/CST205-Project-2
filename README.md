@@ -14,3 +14,6 @@ SoundVisualizer V2
 
 SoundVisualizer V3
   This will be an improvement of V2, using a while loop instead of a for loop
+
+SoundVisualizer V4
+  This creates a Lichtenberg like picture based on the given sound
