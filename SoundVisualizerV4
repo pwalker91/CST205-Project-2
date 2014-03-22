@@ -2,22 +2,33 @@
 # This is the line object.
 # It has a start point (x,y), an end point (x,y), and a color.
 # By default, these are (0,0), (1,1), and white
+# Slope is the integer representing the rise over run of the two points
+# Slope angle is the angle made between the line and the x-axis (in radians)
 class Line(object):
    # This is the initializer, which is run every time a Line object is created
    def __init__(self, startX=0, startY=0, endX=1, endY=1, myColor=white):
+      if not(isinstance(startX, int)):
+         raise TypeError("StartX was not an int. Was given "+type(startX))
+      if not(isinstance(startY, int)):
+         raise TypeError("StartY was not an int. Was given "+type(startY))
+      if not(isinstance(endX, int)):
+         raise TypeError("EndX was not an int. Was given "+type(endX))
+      if not(isinstance(endY, int)):
+         raise TypeError("EndY was not an int. Was given "+type(endY))
       self.startX = startX
       self.startY = startY
       self.endX = endX
       self.endY = endY
       self.myColor = myColor
-      self.slope = (self.endY-self.startY)/(self.endX-self.startX)
-      self.slopeAngle = atan(self.slope)
+      self.calcSlope()
    #This is the method called when you use str(self). Prints out the variables
    def __str__(self):
       return ( "Start:"+str(self.startX)+","
-                        +str(self.startY)+
+                       +str(self.startY)+
               "-End:"+str(self.endX)+","
-                        +str(self.endY)+
+                     +str(self.endY)+
+              "-m:"+str(self.slope)+"(ratio),"
+                   +str(self.slopeAngle)+"(radians)"
               "-Color:"+str(self.myColor.getRed())+","
                          +str(self.myColor.getGreen())+","
                          +str(self.myColor.getBlue()) )
@@ -46,7 +57,7 @@ class Line(object):
       return self.endY
    
    def calcSlope(self):
-      self.slope = (self.endY-self.startY)/(self.endX-self.startX)
+      self.slope = float(self.endY-self.startY)/(self.endX-self.startX)
       self.slopeAngle = atan(self.slope)
    def calcSlopeAngle(self):
       self.slopeAngle = atan(self.slope)
@@ -65,7 +76,6 @@ class Line(object):
    def drawLine(self, picture):
       if picture.__class__.__name__ == "Picture":
          picture.addLine(self.myColor, self.startX, self.startY, self.endX, self.endY)
-         return true
       else:
          raise TypeError("You did not pass in a Picture object.")
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -76,19 +86,20 @@ class Line(object):
 # The line is a Line object, and the branches attribute is an array of branches
 # The hasBranches attribute is for determining whether the object has branches or not
 class Limb(object):
-   def __init__(self, line, hasBranches=false):
+   def __init__(self, line, level=0, hasBranches=false):
       if line.__class__.__name__ == "Line":
          self.line = line
+         self.level = level
       else:
          raise TypeError("You did not pass in a Line object")
       self.hasBranches = hasBranches
       if self.hasBranches:
          self.branches = []
    def __str__(self):
-      returnable = "|Limb:"+str(self.line)+"|  "
+      returnable = "|Limb:"+str(self.line)+"|"
       if self.hasBranches:
          for branch in self.branches:
-            returnable += "\n"+str(branch)
+            returnable += str(branch)
       return returnable
          
    def getLine(self):
@@ -152,15 +163,14 @@ class Branch(object):
       self.level = level
    def __str__(self):
       returnable = ""
+      spacing = ""
       for i in range(0,self.level):
-         returnable += "  ~~  "
+         spacing += "  ~~  "
       
       if len(self.limbs)==0:
          return "Branch has no limbs"
       for limb in self.limbs:
-         returnable += str(limb)
-         if limb.hasBranches:
-            returnable += "\n"
+         returnable += "\n"+spacing+str(limb)
       return returnable
    
    def addLimb(self, limb):
@@ -194,7 +204,6 @@ class Branch(object):
 
 
 
-## BELOW IS PROGRAM MAIN AND FUNCTIONS
 
 
 
@@ -218,168 +227,6 @@ class Branch(object):
 
 
 
-###################################
-"""
-#making sure class names match
-color = makeColor(2,3,4)
-line = Line()
-printNow(line.__class__.__name__)
-printNow(line.__class__)
-printNow(color.__class__)
-try:
-   line.setMyColor(5)
-except TypeError:
-   printNow("didn't use a color")
-printNow("")
-printNow(type(line.__class__))# == "Line")
-"""
-
-
-"""
-#testing changing color
-line = Line()
-printNow( line.setMyColor(makeColor(120,100,25)) )
-printNow( line.setMyColor(white) )
-"""
-
-
-"""
-#testing drawing line
-picture = makeEmptyPicture(100,100, black)
-line.drawLine(picture)
-line.setStartX(10)
-line.setStartY(10)
-line.drawLine(picture)
-show(picture)
-"""
-
-
-"""
-#testing branch object
-import time
-myBrand = Branch()
-myBrand.addLimb(Line(0,1,2,3))
-myBrand.addLimb(Line(5,5,20,20))
-printNow(vars(myBrand))
-limbs = myBrand.getAllLimbs()
-for i in range(0, len(limbs)):
-   printNow(vars(limbs[i]))
-
-picture2 = makeEmptyPicture(100,100, black)
-myBrand.addLimb(Line(50,50,20,20,red))
-printNow(vars(myBrand))
-myBrand.drawAllLimbs(picture2, true)
-
-time.sleep(3)
-picture2 = makeEmptyPicture(100,100, black)
-myBrand.removeLimb(0)
-myBrand.removeLimb(0)
-printNow(vars(myBrand))
-myBrand.drawAllLimbs(picture2)
-repaint(picture2)
-"""
-
-"""
-#drawing a bunch of branches
-import time, random
-picture = makeEmptyPicture(500,500, black)
-printNow(picture.__class__.__name__)
-branch = Branch(0)
-printNow(str(branch))
-
-for i in range(0,4):
-   color = makeColor(random.randint(20, 256), random.randint(20, 256), random.randint(20, 256))
-   line = Line(0+(i*100),0+(i*100), 99+(i*100),99+(i*100), color)
-   limb = Limb(line, true)
-   for m in range(0,10):
-      limb.addBranch(Branch(branch.level+1))
-      for j in range(0,4):
-         color = makeColor(random.randint(20, 256), random.randint(20, 256), random.randint(20, 256))
-         X = line.getStartX()
-         Y = line.getStartY()
-         if (m%2)==0:
-            line2 = Line(X+(m*10)+(j*15),Y+(m*10), X+(m*10)+((j+1)*15),Y+(m*10), color)
-         else:
-            line2 = Line(X+(m*10),Y+(m*10)+(j*15), X+(m*10),Y+(m*10)+((j+1)*15), color)
-         limb2 = Limb(line2, false)
-         limb.getBranch(m).addLimb(limb2)
-   branch.addLimb(limb)
-   addArcFilled(picture, 98+(i*100),98+(i*100), 5,5, 0,360, white)
-branch.drawAllLimbs(picture)
-printNow(str(branch))
-printNow(branch.limbs)
-"""
-
-"""
-for i in range(0,4):
-   branch2a = Branch()
-   branch2b = Branch()
-   limb1 = branch.getLimb(0)
-   limb2 = branch.getLimb(2)
-   
-   
-branch2 = Branch()
-branch2.addLimb(Limb(Line(10,10,10,30,red), false))
-branch2.addLimb(Limb(Line(10,30,10,50,green), true))
-branch2.addLimb(Limb(Line(10,50,10,70,yellow), false))
-branch2.addLimb(Limb(Line(10,70,10,90,cyan), false))
-branch.getLimb(0).addBranch(branch2)
-branch.drawAllLimbs(picture)
-time.sleep(2)
-
-for i in range(0,4):
-   branch3 = Branch()
-   branch3.addLimb(Limb(Line(10,30+(i*5), 15,30+(i*5)+5, white)))
-   branch3.addLimb(Limb(Line(10,30+(i*5)+2, 5,30+(i*5)+5+2, white)))
-   branch2.getLimb(1).addBranch(branch3)
-branch.drawAllLimbs(picture)
-#time.sleep(2)
-"""
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#Testing array properties for function below
-"""
-temp = [1,2,3,4,5,6,7,8,9,10]
-printNow(type(temp))
-printNow(not(isinstance(temp, list)))
-temp2 = temp[0:5]
-printNow(len(temp2))
-for i in range(0,len(temp2)):
-   printNow(temp2[i])
-"""
 
 def averagesForSampleSections(soundArray, numSections):
    if soundArray.__class__.__name__ != "array":
@@ -397,80 +244,54 @@ def averagesForSampleSections(soundArray, numSections):
       for i in range(0, len(soundArray)):
          total += float(soundArray[i].value)
       return total/(len(soundArray))
+   
+   angleMin = min(averages)
+   angleMax = max(averages)
+   dist = angleMax-angleMin
+   for i in range(0, len(averages)):
+      averages[i] = averages[i]/(dist*2)
    return averages
 
-def calcVerticalLimbs(branch, pictureWidth, endHeight, sectionArray):
+def calculateLimbs(branch, thisStartX,thisStartY, thisEndX,thisEndY, branchDist, sectionArray):
    import random
    if branch.__class__.__name__ != "Branch":
       raise TypeError("You did not pass in a Branch object")
-   if picture.__class__.__name__ != "Picture":
-      raise TypeError("You did not pass in a Picture object")
    if (sectionArray.__class__.__name__ != "array") and (sectionArray.__class__.__name__ != "list"):
       raise TypeError("You did not pass in an array object")
-   if (endHeight.__class__.__name__ != "int") or (endHeight<(len(sectionArray)*2)):
-      raise TypeError("Your end height is either not an integer, or high enough for the number of limbs that will be created")
+   if not( isinstance(thisStartX, int) and isinstance(thisStartY, int)
+           and isinstance(thisEndX, int) and isinstance(thisEndY, int) ):
+      raise TypeError("Your given points were not made of integers")
    
-   startPointX = pictureWidth/2
-   limbHeight = endHeight/len(sectionArray)
-   
-   angleMin = min(sectionArray)
-   angleMax = max(sectionArray)
-   dist = angleMax-angleMin
-   radianAdditions = []
-   for i in range(0, len(sectionArray)):
-      radianAdditions.append( (sectionArray[i]/dist)/pi )
-   
+   limbLength = branchDist/(len(sectionArray))
    random.seed(sum(sectionArray))
-   defaultColor = makeColor(120,120,120)
+   
    for k in range(0, len(sectionArray)):
-      color = makeColor(random.randint(0,255),random.randint(0,255),random.randint(0,255))
-      while math.fabs(distance(color,defaultColor)) < (pi*10):
-         color.makeLighter()
-      
-      limb = Limb(Line(startY=(k*limbHeight),endY=((k+1)*limbHeight), myColor=color), true)
+      color = makeColor(random.randint(30,255),random.randint(30,255),random.randint(30,255))
+      limb = Limb( Line( startY=(thisStartY+(k*limbLength)),
+                         endY=(thisStartY+((k+1)*limbLength)),
+                         myColor=color),
+                   branch.level, true )
       if k==0:
-         limb.line.startX = startPointX
+         limb.line.setStartX(thisStartX)
       else:
-         limb.line.startX = branch.getLimb(k-1).line.endX
+         limb.line.setStartX(branch.getLimb(k-1).line.endX)
+      
       try:
-         slopeToMiddleEnd = (endHeight-limb.line.startY) / (startPointX-limb.line.startX)
-         angleToMiddleEnd = atan(slopeToMiddleEnd)
+         slopeToTempEnd = (thisEndY-limb.line.startY) / (thisEndX-limb.line.startX)
+         angleToTempEnd = atan(slopeToTempEnd)
       except ZeroDivisionError:
-         angleToMiddleEnd = (3*pi)/4
-      limb.line.slopeAngle = angleToMiddleEnd+radianAdditions[k]
-      if limb.line.slopeAngle != (3*pi)/4:
-         limb.line.calcSlopeFromAngle()
-         limb.line.endX = int( ((limb.line.slope*limb.line.startX)+limbHeight) / limb.line.slope )
+         angleToTempEnd = (pi/2)
+      
+      limb.line.slopeAngle = angleToTempEnd+sectionArray[k]
+      
+      if (thisStartX<thisEndX):
+         limb.line.setEndX( limb.line.startX + int(limbLength * cos(limb.line.slopeAngle)) )
       else:
-         limb.line.endX = limb.line.startX
+         limb.line.setEndX( limb.line.startX - int(limbLength * cos(limb.line.slopeAngle)) )
+      #
+      printNow(str(limb.line))
+      #
       branch.addLimb(limb)
-
-"""
-picture = makeEmptyPicture(600, 700, black)
-branch = Branch(0)
-sound = makeSound(pickAFile()).getSamples()
-calcVerticalLimbs(branch, picture.getWidth(), picture.getHeight()-100, averagesForSampleSections(sound, 6))
-printNow(str(branch))
-branch.drawAllLimbs(picture)
-"""
-"""
-#line can be drawn into negative space
-pic = makeEmptyPicture(100,100,white)
-addLine(pic, 50,50,50,-30, red)
-repaint(pic)
-"""
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -508,16 +329,130 @@ def run():
    SOUND = makeSound(file)
    
    width = 600
-   height = 800
+   height = 700
    picture = makeEmptyPicture(width, height, black)
    
-   totalMainBranchLength = int( height*(float(5)/8) )
-   totalSubBranchLength = int( (width/2)*(float(2)/3) )
-   subSubBranchLength = int( totalSubBranchLength*0.3)
-   
-   rate = getSamplingRate(SOUND)
    SAMPLES = getSamples(SOUND)
    numSamples = getNumSamples(SOUND)
+   
+   
+   #
+   # DRAWING THE MAIN BRANCH
+   #
+   numMainBranchLimbs = 6
+   numSubBranches = 3
+   numSubBranchLimbs = 5
+   numSubSubBranches = 14
+   
+   mainBranchLength = int( height*(float(7)/8) )
+   subBranchLength = int( (width/2)*(float(2)/3) )
+   subSubBranchLength = int( subBranchLength*0.3)
+   
+   branchStartX = picture.getWidth()/2
+   branchStartY = 0
+   branchEndX = picture.getWidth()/2
+   branchEndY = mainBranchLength
+   
+   mainBranch = Branch(0)
+   calculateLimbs(mainBranch,
+                  int(branchStartX),int(branchStartY),
+                  int(branchEndX),int(branchEndY),
+                  mainBranchLength,
+                  averagesForSampleSections(SAMPLES, numMainBranchLimbs))
+   
+   #printNow(averagesForSampleSections(SAMPLES, numMainBranchLimbs))
+   ""
+   mainBranch.drawAllLimbs(picture)
+   writePictureTo(picture, desktop+"temp_01.jpg")
+   ""
+   
+   #
+   # DRAWING THE FIRST SUB BRANCHES
+   #
+   sectionedSAMPLES = []
+   sectionedLength = len(SAMPLES)/numMainBranchLimbs
+   for k in range(0, numMainBranchLimbs):
+      sectionedSAMPLES.append(SAMPLES[(k*sectionedLength):((k+1)*sectionedLength)])
+   
+   TEMPCOUNT = 0
+   for limb in mainBranch.limbs:
+      TEMPCOUNT+=1
+      thisLimbHeight = limb.line.endY-limb.line.startY
+      thisLimbSectionHeight = thisLimbHeight/numSubBranches
+      
+      subLimbInverseSlope = -1.0/limb.line.slope
+      subBranchXDelta = subBranchLength * cos(tan(subLimbInverseSlope))
+      
+      for k in range(0, numSubBranches):
+         
+         subBranchStartY = limb.line.startY + (k*thisLimbSectionHeight)
+         subBranchStartX = ( ((subBranchStartY-limb.line.startY)
+                              +(limb.line.slope*limb.line.startX))
+                                 /limb.line.slope)
+         if (k%2)==0:
+            subBranchEndX = subBranchStartX + subBranchXDelta
+         else:
+            subBranchEndX = subBranchStartX - subBranchXDelta
+         subBranchEndY = (subLimbInverseSlope*(subBranchEndX-subBranchStartX))+subBranchStartY
+         limb.addBranch(Branch(limb.level+1))
+         
+         """
+         if k>2 and false:
+            sys.exit()
+         else:
+            printNow("subBranch "+str(TEMPCOUNT)+" "+str(k+1))
+            printNow(str(subBranchStartX)+" "+str(subBranchStartY)+" "+str(subBranchEndX)+" "+str(subBranchEndY))
+            printNow("")
+         """
+         
+         calculateLimbs(limb.getBranch(k),
+                        int(subBranchStartX),int(subBranchStartY),
+                        int(subBranchEndX),int(subBranchEndY),
+                        subBranchLength,
+                        averagesForSampleSections(sectionedSAMPLES[k], numSubBranchLimbs))
+         limb.drawLimb(picture)
+         writePictureTo(picture, desktop+"temp_"+str(TEMPCOUNT)+str(k)+".jpg")
+      ##END FOR
+   ##END FOR
+   
+   #
+   # Redraw all branches
+   #
+   ""
+   mainBranch.drawAllLimbs(picture)
+   writePictureTo(picture, desktop+"temp_02.jpg")
+   printNow(str(mainBranch))
+   ""
+         
+         
+      
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   
    
    
    
@@ -625,13 +560,7 @@ def run():
       else:
          writePictureTo(picture, save_path+folder+"frame"+str(frameIndex)+".jpg")
    ## END WHILE
-   
-   
-   
-   
-   
-   
-   
+   """
    """
       #This is where the movie is created
    printNow("Creating Movie")
@@ -656,9 +585,12 @@ def run():
       shutil.rmtree(save_path+folder)
    except OSError:
       deleted = false
-"""
-# TESTING AREA BELOW
-"""
+   """
+
+
+
+
+
 
 
 
