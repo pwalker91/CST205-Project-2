@@ -6,6 +6,7 @@
 # Slope angle is the angle made between the line and the x-axis (in radians)
 class Line(object):
    # This is the initializer, which is run every time a Line object is created
+   # The first section of IFs checks to see that the given points are made of integers
    def __init__(self, startX=0, startY=0, endX=1, endY=1, myColor=white):
       if not(isinstance(startX, int)):
          raise TypeError("StartX was not an int. Was given "+type(startX))
@@ -15,12 +16,16 @@ class Line(object):
          raise TypeError("EndX was not an int. Was given "+type(endX))
       if not(isinstance(endY, int)):
          raise TypeError("EndY was not an int. Was given "+type(endY))
+      if myColor.__class__.__name__ != "Color":
+         raise TypeError("You did not pass in a Color object.")
       self.startX = startX
       self.startY = startY
       self.endX = endX
       self.endY = endY
       self.myColor = myColor
       self.calcSlope()
+   ##END DEF
+   
    #This is the method called when you use str(self). Prints out the variables
    def __str__(self):
       return ( "Start:"+str(self.startX)+","
@@ -32,52 +37,72 @@ class Line(object):
               "-Color:"+str(self.myColor.getRed())+","
                          +str(self.myColor.getGreen())+","
                          +str(self.myColor.getBlue()) )
+   ##END DEF
    
-   #These are the getters and setters
+   #These are the getters and setters for the start and end points of the line
    def setStartX(self, x):
       self.startX = x
       self.calcSlope()
+   ##END DEF
    def setStartY(self, y):
       self.startY = y
       self.calcSlope()
+   ##END DEF
    def getStartX(self):
       return self.startX
+   ##END DEF
    def getStartY(self):
       return self.startY
+   ##END DEF
    
    def setEndX(self, x):
       self.endX = x
       self.calcSlope()
+   ##END DEF
    def setEndY(self, y):
       self.endY = y
       self.calcSlope()
+   ##END DEF
    def getEndX(self):
       return self.endX
+   ##END DEF
    def getEndY(self):
       return self.endY
+   ##END DEF
    
+   #These functions calculate the slope or slope angle values, given the points, the slope
+   # or the slope angle
    def calcSlope(self):
       self.slope = float(self.endY-self.startY)/(self.endX-self.startX)
       self.slopeAngle = atan(self.slope)
+   ##END DEF
    def calcSlopeAngle(self):
       self.slopeAngle = atan(self.slope)
+   ##END DEF
    def calcSlopeFromAngle(self):
       self.slope = tan(self.slopeAngle)
+   ##END DEF
    
+   #Setting and getting the color
    def setMyColor(self, color):
       if color.__class__.__name__ == "Color":
          self.myColor = color
          return "Line Color was changed to ~"+str(color)+"~"
       else:
          raise TypeError("You did not pass in a Color object.")
+   ##END DEF
    def getMyColor(self):
       return self.myColor
-      
+   ##END DEF
+   
+   #Drawing the line on the given picture object
    def drawLine(self, picture):
       if picture.__class__.__name__ == "Picture":
          picture.addLine(self.myColor, self.startX, self.startY, self.endX, self.endY)
       else:
          raise TypeError("You did not pass in a Picture object.")
+   ##END DEF
+##END CLASS
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -86,6 +111,8 @@ class Line(object):
 # The line is a Line object, and the branches attribute is an array of branches
 # The hasBranches attribute is for determining whether the object has branches or not
 class Limb(object):
+   #The object on creation must be pass a Line object, a level,
+   # and optionally a boolean on whether the object has Branches or not
    def __init__(self, line, level=0, hasBranches=false):
       if line.__class__.__name__ == "Line":
          self.line = line
@@ -95,21 +122,28 @@ class Limb(object):
       self.hasBranches = hasBranches
       if self.hasBranches:
          self.branches = []
+   ##END DEF
+   #Printing out the Limb object
    def __str__(self):
       returnable = "|Limb:"+str(self.line)+"|"
       if self.hasBranches:
          for branch in self.branches:
             returnable += str(branch)
       return returnable
-         
+   ##END DEF
+   
+   #Getter and setter for the Line attribute
    def getLine(self):
       return self.line
+   ##END DEF
    def setLine(self, line):
       if line.__class__.__name__ == "Line":
          self.line = line
       else:
          raise TypeError("You did not pass in a Line object.")
+   ##END DEF
    
+   #Methods for adding, removing, and getting all of the Branches in the object
    def addBranch(self, branch):
       if self.hasBranches:
          if branch.__class__.__name__ == "Branch":
@@ -119,6 +153,7 @@ class Limb(object):
             raise TypeError("You did not pass in a Line object.")
       else:
          raise StandardError("You cannot call this function for this object. This limb has no Branches")
+   ##END DEF
    def removeBranch(self, index):
       if self.hasBranches:
          if (index >= len(self.branches)) or (index < 0):
@@ -127,6 +162,7 @@ class Limb(object):
             return self.branches.pop(index)
       else:
          raise StandardError("You cannot call this function for this object. This limb has no Branches")
+   ##END DEF
    def getBranch(self, index):
       if self.hasBranches:
          if (index >= len(self.branches)) or (index < 0):
@@ -135,21 +171,25 @@ class Limb(object):
             return self.branches[index]
       else:
          raise StandarError("You cannot call this function for this object. This limb has no Branches")
+   ##END DEF
    def getAllBranches(self):
       if self.hasBranches:
          return self.branches
       else:
          raise StandardError("You cannot call this function for this object. This limb has no Branches")
+   ##END DEF
    
+   #Draws the limb based on the Line attribute, and draws any subsequent branches
    def drawLimb(self, picture):
       self.line.drawLine(picture)
-      #
+      #This was going to save rather than repaint
       repaint(picture)
       #
       if self.hasBranches:
          for branch in self.branches:
             branch.drawAllLimbs(picture)
-      
+   ##END DEF
+##END CLASS
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
@@ -161,6 +201,7 @@ class Branch(object):
       self.size = 0
       self.limbs = []
       self.level = level
+   ##END DEF
    def __str__(self):
       returnable = ""
       spacing = ""
@@ -172,7 +213,9 @@ class Branch(object):
       for limb in self.limbs:
          returnable += "\n"+spacing+str(limb)
       return returnable
+   ##END DEF
    
+   #These methods add, remove, and get the Limbs in the branch object
    def addLimb(self, limb):
       if limb.__class__.__name__ == "Limb":
          self.limbs.append(limb)
@@ -180,23 +223,30 @@ class Branch(object):
          return self.size
       else:
          raise TypeError("You did not pass in a Limb object.")
+   ##END DEF
    def removeLimb(self, index):
       if (index >= self.size) or (index < 0):
          raise IndexError("You did not pass a correct index. It must be between 0 and "+str(self.size))
       else:
          self.size-=1
          return self.limbs.pop(index)
+   ##END DEF
    def getLimb(self, index):
       if (index >= self.size) or (index < 0):
          raise IndexError("You did not pass a correct index. It must be between 0 and "+str(self.size))
       else:
          return self.limbs[index]
+   ##END DEF
    def getAllLimbs(self):
       return self.limbs
+   ##END DEF
    
+   #Draws all limbs in the object on the given picture
    def drawAllLimbs(self, picture):
       for limb in self.limbs:
          limb.drawLimb(picture)
+   ##END DEF
+##END CLASS
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 
 
@@ -205,53 +255,49 @@ class Branch(object):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def averagesForSampleSections(soundArray, numSections):
+# Takes a given array of sample values, a number of section to split it into, and a multiplier
+# for the averager.
+## The array given will be split into X number of sections, and each section will averages all
+## of the sample values. These values are then added to an array (which will be returned).
+## Before returning the array, the values are reduced to values between about -1 and 1, because
+## these values are later added to a radian measurement.
+def averagesForSampleSections(soundArray, numSections, multiplier):
+   # Checks to make sure that an array was passed through
    if soundArray.__class__.__name__ != "array":
       raise TypeError("You did not pass in an array. Are you passing in the Sound object? Or the array of Sample Objects?")
    if isinstance(numSections, int) and (numSections<1):
-      raise StandarError("The number of section must be greater than 0")
+      raise StandarError("The number of sections must be an integer greater than 0")
    
+   # If the number of section is not one, it recursively runs the function with a slice of the original array
+   # If the number is one, the values are averaged and returned to the IF above
    averages = []
    if numSections != 1:
       sectionLength = len(soundArray)/numSections
       for i in range(0,numSections):
-         averages.append( averagesForSampleSections(soundArray[(i*sectionLength):((i+1)*sectionLength)], 1) )
+         averages.append( averagesForSampleSections(soundArray[(i*sectionLength):((i+1)*sectionLength)], 1, 1) )
    else:
       total = 0
       for i in range(0, len(soundArray)):
          total += float(soundArray[i].value)
       return total/(len(soundArray))
    
+   # This part makes the values in the returned array more useable to the other functions
    angleMin = min(averages)
    angleMax = max(averages)
    dist = angleMax-angleMin
    for i in range(0, len(averages)):
-      averages[i] = averages[i]/(dist*2)
+      averages[i] = averages[i]/(dist*multiplier)
    return averages
+##END DEF
 
+
+# This function takes a given branch of limbs, a starting and ending point (as 4 integers),
+# the average length the whole branch should cover (in number of pixels) and an array of radian values.
+## The function will create as many limbs as there are arrays in the sectionArray
+## The sectionArray is structured such ( [2.34, 7.992, 0.0198, .....] )
+## Once the function figures out how many "Limbs" there will be, it creates their Lines, whose direction
+## is starting at the previous Line's end and ending towards the end point. However, the slope of the line (the angle)
+## has a random value added, which is the value in sectionArray at the same index
 def calculateLimbs(branch, thisStartX,thisStartY, thisEndX,thisEndY, branchDist, sectionArray):
    import random
    if branch.__class__.__name__ != "Branch":
@@ -262,28 +308,37 @@ def calculateLimbs(branch, thisStartX,thisStartY, thisEndX,thisEndY, branchDist,
            and isinstance(thisEndX, int) and isinstance(thisEndY, int) ):
       raise TypeError("Your given points were not made of integers")
    
+   #Each limb is going to be as long as the whole distance (given value) divided by the number of limbs
    limbLength = branchDist/(len(sectionArray))
    random.seed(sum(sectionArray))
    
+   #This for loop will create as many limbs as there are values in the section array
    for k in range(0, len(sectionArray)):
       color = makeColor(random.randint(30,255),random.randint(30,255),random.randint(30,255))
+      #The start Y and end Y are always known, because the Y increases the same amount
       limb = Limb( Line( startY=(thisStartY+(k*limbLength)),
                          endY=(thisStartY+((k+1)*limbLength)),
                          myColor=color),
                    branch.level, true )
+      #If this is the first limb, use the given start X, otherwise, use the last limb's end X
       if k==0:
          limb.line.setStartX(thisStartX)
       else:
          limb.line.setStartX(branch.getLimb(k-1).line.endX)
       
+      #Try finding the angle of the slope between the current limb's start X and Y and the
+      # overall end X and Y. If the slope is vertical, the slope is infinity, and so we set
+      # the angle to be pi/2
       try:
          slopeToTempEnd = (thisEndY-limb.line.startY) / (thisEndX-limb.line.startX)
          angleToTempEnd = atan(slopeToTempEnd)
       except ZeroDivisionError:
          angleToTempEnd = (pi/2)
       
+      #Adding the random radian amount to the angle
       limb.line.slopeAngle = angleToTempEnd+sectionArray[k]
       
+      #Calculating the end X value based on the start X, slope, and change in Y
       if (thisStartX<thisEndX):
          limb.line.setEndX( limb.line.startX + int(limbLength * cos(limb.line.slopeAngle)) )
       else:
@@ -292,7 +347,7 @@ def calculateLimbs(branch, thisStartX,thisStartY, thisEndX,thisEndY, branchDist,
       printNow(str(limb.line))
       #
       branch.addLimb(limb)
-
+##END DEF
 
 
 
@@ -358,7 +413,7 @@ def run():
                   int(branchStartX),int(branchStartY),
                   int(branchEndX),int(branchEndY),
                   mainBranchLength,
-                  averagesForSampleSections(SAMPLES, numMainBranchLimbs))
+                  averagesForSampleSections(SAMPLES, numMainBranchLimbs, 1))
    
    #printNow(averagesForSampleSections(SAMPLES, numMainBranchLimbs))
    ""
@@ -409,7 +464,7 @@ def run():
                         int(subBranchStartX),int(subBranchStartY),
                         int(subBranchEndX),int(subBranchEndY),
                         subBranchLength,
-                        averagesForSampleSections(sectionedSAMPLES[k], numSubBranchLimbs))
+                        averagesForSampleSections(sectionedSAMPLES[k], numSubBranchLimbs, numSubBranchLimbs))
          limb.drawLimb(picture)
          writePictureTo(picture, desktop+"temp_"+str(TEMPCOUNT)+str(k)+".jpg")
       ##END FOR
@@ -448,7 +503,12 @@ def run():
    
    
    
+   ###
    
+   ## THIS PART BELOW IS FROM THE PREVIOUS ITERATION, AND WAS GOING TO BE USED AS A TEMPLATE FOR
+   ## THE FINISHED FUNCTION
+   
+   ###
    
    
    
