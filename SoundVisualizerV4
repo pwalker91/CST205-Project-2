@@ -73,8 +73,11 @@ class Line(object):
    #These functions calculate the slope or slope angle values, given the points, the slope
    # or the slope angle
    def calcSlope(self):
-      self.slope = float(self.endY-self.startY)/(self.endX-self.startX)
-      self.slopeAngle = atan(self.slope)
+      try:
+         self.slope = float(self.endY-self.startY)/(self.endX-self.startX)
+         self.slopeAngle = atan(self.slope)
+      except ZeroDivisionError:
+         self.slopeAngle = pi/2
    ##END DEF
    def calcSlopeAngle(self):
       self.slopeAngle = atan(self.slope)

@@ -67,7 +67,7 @@ def run():
    
       #This while loop will iterate through the sound, creating the appropiate image for the
       # current section of time
-   while sampleIndex<numSamples+(samplesPerSection*nextHalfSecondSectionCount):
+   while sampleIndex<( numSamples+(samplesPerSection*(lastSecondSectionCount+nextHalfSecondSectionCount)) ):
       picture = makeEmptyPicture(width, height, black)
       soundColor = white
       lineColor = red
